@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
     String selectedMusic;
     String musicPath = Environment.getExternalStorageDirectory().getPath() + "/";
     MediaPlayer media;
-    Button btnStart, btnStop;
+    Button btnStart, btnStop, btnPause;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,11 +72,25 @@ public class MainActivity extends AppCompatActivity {
                     media.prepare();
                     media.start();
                     btnStart.setClickable(false);
-                    btnstop.setClickable(true);
+                    btnStop.setClickable(true);
                     textMusic.setText(selectedMusic);
                     proBar.setVisibility(View.VISIBLE);
                 } catch (IOException e){
                     e.printStackTrace();
+                }
+            }
+        });
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(btnPause.getText().equals("일시 중지")){
+                    media.pause();
+                    btnPause.setText("이어듣기");
+                    proBar.setVisibility(View.INVISIBLE);
+                }else if(btnPause.getText().equals("이어 듣기")){
+                    media.start();
+                    btnPause.setText("일시 중지");
+                    proBar.setVisibility(View.VISIBLE);
                 }
             }
         });
