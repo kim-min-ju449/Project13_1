@@ -7,27 +7,31 @@ import android.Manifest;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
+import android.widget.SeekBar;
 import android.widget.TextView;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     ListView list1;
     TextView textMusic;
-    ProgressBar proBar;
+    SeekBar seek1;
     ArrayList<String> arrList;
     String selectedMusic;
     String musicPath = Environment.getExternalStorageDirectory().getPath() + "/";
     MediaPlayer media;
     Button btnStart, btnStop, btnPause;
+    TextView textTime;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnstop = findViewById(R.id.btn_stop);
         Button btnPause = findViewById(R.id.btn_pause);
         textMusic = findViewById(R.id.text_music);
-        proBar = findViewById(R.id.progress);
+        seek1 = findViewById(R.id.seek1);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,10 +79,13 @@ public class MainActivity extends AppCompatActivity {
                     btnStart.setClickable(false);
                     btnStop.setClickable(true);
                     textMusic.setText(selectedMusic);
-                    proBar.setVisibility(View.VISIBLE);
+                    seek1.setVisibility(View.VISIBLE);
                 } catch (IOException e){
                     e.printStackTrace();
                 }
+                runOnThread();
+
+
             }
         });
         btnPause.setOnClickListener(new View.OnClickListener() {
@@ -87,11 +94,12 @@ public class MainActivity extends AppCompatActivity {
                 if(btnPause.getText().equals("일시 중지")){
                     media.pause();
                     btnPause.setText("이어듣기");
-                    proBar.setVisibility(View.INVISIBLE);
+                    seek1.setVisibility(View.INVISIBLE);
                 }else if(btnPause.getText().equals("이어 듣기")){
                     media.start();
+                    runOnThread();
                     btnPause.setText("일시 중지");
-                    proBar.setVisibility(View.VISIBLE);
+                    seek1.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -103,9 +111,33 @@ public class MainActivity extends AppCompatActivity {
                 btnStart.setClickable(true);
                 btnstop.setClickable(false);
                 textMusic.setText("실행음악 중지: ");
-                proBar.setVisibility(View.INVISIBLE);
+                seek1.setVisibility(View.INVISIBLE);
             }
         });
         btnStop.setClickable(false);
+    }
+
+    public void runOnThread(){
+        new Thread(){
+            SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss");
+            @Override
+            public void run() {
+                if(media == null)
+                    return;
+                seek1.setMax(media.getDuration());
+                while(media.isPlaying()){
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            seek1.setProgress(media.getCurrentPosition());
+                            textTime.setText("진행시간:");
+                        }
+                    });
+                    SystemClock.sleep(200);
+                }
+
+            }
+        }.start();
+
     }
 }
