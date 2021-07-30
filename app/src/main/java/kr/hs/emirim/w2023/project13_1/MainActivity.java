@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnStart = findViewById(R.id.btn_start);
         Button btnstop = findViewById(R.id.btn_stop);
+        Button btnPause = findViewById(R.id.btn_pause);
         textMusic = findViewById(R.id.text_music);
         proBar = findViewById(R.id.progress);
 
